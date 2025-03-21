@@ -18,10 +18,9 @@ use crate::config;
 use crate::providers::{ChatProvider, ContextManagement, MessageDelta};
 use crate::registry::populate::resolve_once;
 use crate::registry::registry::{self, ModelSpec, Registry};
-use crate::ChatArgs;
+use crate::ChatOpts;
 use prompt::{model_prompt, user_prompt};
 use tokio::{select, signal};
-
 
 pub(crate) enum Severity {
     Error,
@@ -155,7 +154,7 @@ pub(crate) async fn chat_cmd(
     keybindings: config::Keybindings,
     default_model: Option<String>,
     registry: Registry,
-    args: &ChatArgs,
+    args: &ChatOpts,
 ) {
     let in_terminal = io::stdin().is_terminal();
     let out_terminal = io::stdout().is_terminal();

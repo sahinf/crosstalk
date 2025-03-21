@@ -33,8 +33,8 @@ pub(crate) enum RequestedColorMode {
     author = "Alex <alex@al.exander.io>",
     version = version::VERSION
 )]
-struct Cli {
     #[arg(long, default_value_t = RequestedColorMode::default())]
+struct Opts {
     color: RequestedColorMode,
     #[arg(long)]
     config: Option<PathBuf>,
@@ -45,13 +45,13 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Start a chat
-    Chat(ChatArgs),
+    Chat(ChatOpts),
     /// List available models
     List(ListArgs),
 }
 
 #[derive(Parser, Default)]
-pub(crate) struct ChatArgs {
+pub(crate) struct ChatOpts {
     /// Specifies the model to be used during the chat
     #[arg(short, long)]
     model: Option<String>,
@@ -121,7 +121,7 @@ fn hook_panics_with_reporting() {
 async fn main() {
     hook_panics_with_reporting();
 
-    let cli = Cli::parse();
+    let cli = Opts::parse();
 
     let color = ColorMode::resolve_auto(cli.color);
 
@@ -151,7 +151,7 @@ async fn main() {
                 config.keybindings,
                 config.default_model,
                 registry,
-                &ChatArgs::default(),
+                &ChatOpts::default(),
             )
             .await
         }
