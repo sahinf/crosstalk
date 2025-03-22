@@ -9,7 +9,7 @@ mod version;
 
 use std::path::PathBuf;
 
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use cli::{chat::chat_cmd, list::list_cmd, ColorMode};
 use config::read_config;
 use providers::providers::ProviderIdentifier;
@@ -33,13 +33,19 @@ pub(crate) enum RequestedColorMode {
     author = "Alex <alex@al.exander.io>",
     version = version::VERSION
 )]
-    #[arg(long, default_value_t = RequestedColorMode::default())]
 struct Opts {
+    #[arg(help="Use ANSI color", long, default_value_t = RequestedColorMode::default())]
     color: RequestedColorMode,
-    #[arg(long)]
+    #[arg(help = "Specify alternative config path", long)]
     config: Option<PathBuf>,
     #[command(subcommand)]
     command: Option<Commands>,
+    #[arg(
+        help = "generate shell completion and exit",
+        long = "generate",
+        exclusive = true
+    )]
+    generator: Option<clap_complete::aot::Shell>,
 }
 
 #[derive(Subcommand)]
@@ -132,6 +138,14 @@ async fn main() {
     let registry = populated_registry(&config).await;
 
     let editor: Option<PathBuf> = config.editor.map(|s| s.into());
+
+    if let Some(generator) = cli.generator {
+        let out_dir = "target/completions";
+        let _ = std::fs::create_dir_all(out_dir);
+        let _ = clap_complete::generate_to(generator, &mut Opts::command(), version::NAME, out_dir);
+        println!("Generated completions for {} in {}", generator, out_dir);
+        return;
+    }
 
     match &cli.command {
         Some(Commands::Chat(args)) => {

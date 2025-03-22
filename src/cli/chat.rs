@@ -282,7 +282,7 @@ async fn chat<'p>(
 
             msg_buf.add_message(Message::user(prompt));
         }
-       
+
         let completion = provider
             .stream_completion(&model_id, &msg_buf.chat_messages())
             .await;
@@ -330,7 +330,7 @@ async fn chat<'p>(
                                 print!("{}", delta.content);
                                 flush_or_die();
                             }
-        
+
                             msg_builder.add(&delta);
                         }
                         Err(err) => panic!("failed to decode streaming response: {}", err),
@@ -339,7 +339,7 @@ async fn chat<'p>(
                 _ = signal::ctrl_c() => {
                     skip_response = true;
                     break;
-                } 
+                }
             }
         }
 
@@ -361,7 +361,7 @@ async fn chat<'p>(
         if !interactive {
             break;
         }
- 
+
         pending_init_prompt = false;
     }
 }
